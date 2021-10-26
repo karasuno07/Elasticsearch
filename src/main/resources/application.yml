@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    username: alpaca
+    password: alpaca@@@
+    url: jdbc:postgresql://localhost:5432/alpaca_pj_01
