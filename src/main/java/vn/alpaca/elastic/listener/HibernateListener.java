@@ -26,12 +26,12 @@ public class HibernateListener {
                 = sessionFactory.getServiceRegistry()
                 .getService(EventListenerRegistry.class);
 
-//        registry.getEventListenerGroup(EventType.POST_INSERT)
-//                .appendListener(listener);
+        registry.getEventListenerGroup(EventType.POST_INSERT)
+                .appendListener(listener);
         registry.getEventListenerGroup(EventType.POST_UPDATE)
                 .appendListener(listener);
-//        registry.getEventListenerGroup(EventType.POST_DELETE)
-//                .appendListener(listener);
+        registry.getEventListenerGroup(EventType.POST_DELETE)
+                .appendListener(listener);
     }
 
 

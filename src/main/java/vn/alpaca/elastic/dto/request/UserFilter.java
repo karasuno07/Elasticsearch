@@ -9,31 +9,31 @@ import java.util.Date;
 @Data
 public class UserFilter {
 
-    private String username = "";
+    private String username;
 
     @JsonProperty("full_name")
-    private String fullName = "";
+    private String fullName;
 
-    private Boolean gender = null;
+    private Boolean gender;
 
     @JsonProperty("id_card_number")
-    private String idCardNumber = "";
+    private String idCardNumber;
 
     @JsonProperty("dob_from")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date from = new Date(Long.MIN_VALUE);
+    private Date from;
 
     @JsonProperty("dob_to")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date to = new Date(Long.MAX_VALUE);
+    private Date to;
 
     @JsonProperty("phone_number")
-    private String phoneNumber = "";
+    private String phoneNumber;
 
-    private String email = "";
+    private String email;
 
-    private String address = "";
+    private String address;
 
-    private Boolean active = null;
+    private Boolean active;
 
 }

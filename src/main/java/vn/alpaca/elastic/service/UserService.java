@@ -45,23 +45,51 @@ public class UserService {
     private final UserMapper userMapper;
 
     public Page<User> findAll(UserFilter filter, Pageable pageable) {
-        userEsRepo.saveAll(userJpaRepo.findAll().stream().map(userMapper::userToUserES).collect(
-                Collectors.toList()));
+//        userEsRepo.saveAll(
+//                userJpaRepo.findAll().stream().map(userMapper::userToUserES)
+//                        .collect(Collectors.toList()));
         Page<User> users;
-        System.out.println(filter.getFrom().toInstant().toString());
-        System.out.println(filter.getTo().toInstant().toString());
-        BoolQueryBuilder query = QueryBuilders.boolQuery()
-                .should(wildcardQuery("username",
-                        "*" + filter.getUsername() + "*"))
-                .should(matchQuery("full_name", filter.getFullName()))
-                .should(termQuery("id_card_number", filter.getIdCardNumber()))
-                .should(termQuery("phone_numbers", filter.getPhoneNumber()))
-                .should(matchQuery("address", filter.getAddress()));
 
-//        if (!ObjectUtils.isEmpty(filter.getFrom()) && !ObjectUtils.isEmpty(filter.getTo())) {
-//            query.should(rangeQuery("date_of_birth")
-//                    .gte(filter.get))
-//        }
+        BoolQueryBuilder query = QueryBuilders.boolQuery();
+
+        if (!ObjectUtils.isEmpty(filter.getUsername())) {
+            query.should(wildcardQuery("username",
+                    "*" + filter.getUsername() + "*"));
+        }
+
+        if (!ObjectUtils.isEmpty(filter.getFullName())) {
+            query.should(matchQuery("full_name", filter.getFullName()));
+        }
+
+        if (!ObjectUtils.isEmpty(filter.getIdCardNumber())) {
+            query.should(termQuery("id_card_number", filter.getIdCardNumber()));
+        }
+
+        if (!ObjectUtils.isEmpty(filter.getPhoneNumber())) {
+            query.should(termQuery("phone_numbers", filter.getPhoneNumber()));
+        }
+
+        if (!ObjectUtils.isEmpty(filter.getAddress())) {
+            query.should(matchQuery("address", filter.getAddress()));
+        }
+
+        if (!ObjectUtils.isEmpty(filter.getFrom()) &&
+                !ObjectUtils.isEmpty(filter.getTo())) {
+            query.should(rangeQuery("date_of_birth")
+                    .format("date_option_time")
+                    .gte(filter.getFrom())
+                    .lte(filter.getTo()));
+        } else if (!ObjectUtils.isEmpty(filter.getFrom()) &&
+                ObjectUtils.isEmpty(filter.getTo())) {
+            query.should(rangeQuery("date_of_birth")
+                    .format("date_option_time")
+                    .gte(filter.getFrom()));
+        } else if (ObjectUtils.isEmpty(filter.getFrom()) &&
+                !ObjectUtils.isEmpty(filter.getTo())) {
+            query.should(rangeQuery("date_of_birth")
+                    .format("date_option_time")
+                    .lte(filter.getTo()));
+        }
 
         if (!ObjectUtils.isEmpty(filter.getGender())) {
             query.should(matchQuery("gender", filter.getGender()));
