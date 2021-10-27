@@ -12,20 +12,20 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Role {
+public class
+Role {
 
     @Id
     @SequenceGenerator(
             name = "roles_id_seq",
-            sequenceName = "roles_id_seq",
-            initialValue = 1
+            sequenceName = "roles_id_seq"
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "roles_id_seq"
     )
     private int id;
-
+    
     private String name;
 
     @ToString.Exclude

@@ -3,3 +3,12 @@ spring:
     username: alpaca
     password: alpaca@@@
     url: jdbc:postgresql://localhost:5432/alpaca_pj_01
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          elasticsearch:
+            client:
+              WIRE: TRACE

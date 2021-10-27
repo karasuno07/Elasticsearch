@@ -2,29 +2,29 @@ package vn.alpaca.elastic.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import vn.alpaca.elastic.dto.response.ErrorResponse;
 
 @ControllerAdvice
 public class CustomExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>>
+    public ResponseEntity<ErrorResponse>
     handleNotFoundException(ResourceNotFoundException exception) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("status", HttpStatus.NOT_FOUND.value());
-        map.put("message", exception.getMessage());
-        map.put("timestamp", new Date());
+        ErrorResponse response = new ErrorResponse();
 
-        return new ResponseEntity<>(
-                map,
-                HttpStatus.NOT_FOUND
+        response.setErrorCode(HttpStatus.NOT_FOUND.value());
+        response.setMessage(
+                ObjectUtils.isEmpty(exception.getMessage())
+                        ? "Resource not found"
+                        : exception.getMessage()
         );
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }
+

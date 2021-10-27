@@ -1,4 +1,4 @@
-package vn.alpaca.elastic.dto.mapper;
+package vn.alpaca.elastic.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;

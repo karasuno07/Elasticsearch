@@ -21,9 +21,10 @@ public class DataConfig {
 
     @Bean
     public RestHighLevelClient restClient() {
-        ClientConfiguration configuration
+        final ClientConfiguration configuration
                 = ClientConfiguration.builder()
                 .connectedTo("localhost:9200")
+                .withBasicAuth("elastic", "123456")
                 .build();
         return RestClients.create(configuration).rest();
     }

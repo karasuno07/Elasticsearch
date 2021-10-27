@@ -1,8 +1,19 @@
 package vn.alpaca.elastic.repository.es;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import vn.alpaca.elastic.entity.es.EsUser;
+import vn.alpaca.elastic.entity.es.UserES;
+
+import java.util.Optional;
 
 public interface UserESRepository extends
-        ElasticsearchRepository<EsUser, Integer> {
+        ElasticsearchRepository<UserES, Integer> {
+
+    Optional<UserES> findByUsername(String username);
+
+    @Override
+    @Query("query")
+    Page<UserES> findAll(Pageable pageable);
 }

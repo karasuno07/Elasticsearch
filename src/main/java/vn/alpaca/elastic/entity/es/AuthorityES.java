@@ -4,20 +4,17 @@ import lombok.Data;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import vn.alpaca.elastic.entity.jpa.Authority;
 
 import javax.persistence.Id;
-import java.util.Set;
 
-@Document(indexName = "roles")
+@Document(indexName = "authorities")
 @Data
-public class EsRole {
+public class AuthorityES {
 
     @Id
     private int id;
 
-    private String name;
+    @Field(name = "permission", type = FieldType.Keyword)
+    private String permissionName;
 
-    @Field(type = FieldType.Nested, includeInParent = true)
-    private Set<Authority> authorities;
 }

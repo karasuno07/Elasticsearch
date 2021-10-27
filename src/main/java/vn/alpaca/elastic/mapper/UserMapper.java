@@ -1,9 +1,10 @@
-package vn.alpaca.elastic.dto.mapper;
+package vn.alpaca.elastic.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import vn.alpaca.elastic.dto.request.UserRequest;
 import vn.alpaca.elastic.dto.response.UserResponse;
-import vn.alpaca.elastic.entity.es.EsUser;
+import vn.alpaca.elastic.entity.es.UserES;
 import vn.alpaca.elastic.entity.jpa.User;
 
 @Mapper(componentModel = "spring",
@@ -12,7 +13,11 @@ public interface UserMapper {
 
     UserResponse userToUserResponse(User user);
 
-    UserResponse esUserToUserResponse(EsUser esUser);
+    UserResponse userESToUserResponse(UserES userES);
 
-    EsUser userToEsUser(User user);
+    UserES userToUserES(User user);
+
+    User userRequestToUser(UserRequest requestData);
+
+    User userESToUser(UserES userES);
 }

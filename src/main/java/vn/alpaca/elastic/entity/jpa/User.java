@@ -23,7 +23,8 @@ public class User {
     @SequenceGenerator(
             name = "users_id_seq",
             sequenceName = "users_id_seq",
-            initialValue = 1
+            schema = "user_management",
+            allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
