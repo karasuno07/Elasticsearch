@@ -25,9 +25,11 @@ dependencies {
     implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.4.2.Final'
     implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.14.0'
     runtimeOnly 'org.postgresql:postgresql:42.2.24.jre7'
+    compileOnly group: 'org.hibernate', name: 'hibernate-jpamodelgen', version: '5.6.0.Final'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.hibernate:hibernate-jpamodelgen:5.6.0.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
