@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -14,8 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class
-Role {
+public class Role implements Serializable {
 
     @Id
     @SequenceGenerator(
@@ -34,7 +34,8 @@ Role {
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
             CascadeType.REFRESH,
-            CascadeType.MERGE})
+            CascadeType.MERGE},
+            fetch = FetchType.EAGER)
     @JoinTable(name = "roles_authorities", schema = "user_management",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "authority_id"))

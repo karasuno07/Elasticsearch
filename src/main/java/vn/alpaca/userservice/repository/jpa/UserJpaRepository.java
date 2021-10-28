@@ -14,19 +14,6 @@ public interface UserJpaRepository extends
         JpaRepository<User, Integer>,
         JpaSpecificationExecutor<User> {
 
-    @Override
-    @Query("SELECT u FROM User u " +
-            "LEFT JOIN FETCH u.role AS r " +
-            "LEFT JOIN FETCH r.authorities")
-    Page<User> findAll(Specification<User> spec, Pageable pageable);
-
-    @Override
-    @Query("SELECT u FROM User u " +
-            "LEFT JOIN FETCH u.role AS r " +
-            "LEFT JOIN FETCH r.authorities " +
-            "WHERE u.id = ?1")
-    Optional<User> findById(Integer id);
-
     @Query("SELECT u FROM User u " +
             "LEFT JOIN FETCH u.role AS r " +
             "LEFT JOIN FETCH r.authorities " +

@@ -11,6 +11,10 @@ import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import vn.alpaca.userservice.dto.request.UserFilter;
@@ -34,17 +38,18 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserJpaRepository userJpaRepo;
-    private final UserESRepository userEsRepo;
-
     private final RoleJpaRepository roleJpaRepo;
+    private final UserESRepository userEsRepo;
+    private final UserMapper userMapper;
+
+    private final PasswordEncoder passwordEncoder;
 
     private final ElasticsearchRestTemplate restTemplate;
     private final IndexCoordinates index = IndexCoordinates.of("users");
 
-    private final UserMapper userMapper;
 
     @PostConstruct
     protected void validateData() {
@@ -175,6 +180,7 @@ public class UserService {
 
     public User create(UserRequest requestData) {
         User user = userMapper.userRequestToUser(requestData);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Role role = roleJpaRepo.findById(requestData.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -192,6 +198,7 @@ public class UserService {
 
         User updatedUser = userMapper.userRequestToUser(requestData);
         updatedUser.setId(existingUser.getId());
+        updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
 
         Role role = roleJpaRepo.findById(requestData.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -220,5 +227,11 @@ public class UserService {
                 ));
         user.setActive(false);
         userJpaRepo.save(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+        return findByUsername(username);
     }
 }

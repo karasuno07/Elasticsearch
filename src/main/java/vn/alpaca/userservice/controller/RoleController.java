@@ -2,10 +2,11 @@ package vn.alpaca.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.alpaca.userservice.dto.request.RoleRequest;
 import vn.alpaca.userservice.dto.response.RoleResponse;
+import vn.alpaca.userservice.dto.wrapper.AbstractResponse;
+import vn.alpaca.userservice.dto.wrapper.SuccessResponse;
 import vn.alpaca.userservice.mapper.RoleMapper;
 import vn.alpaca.userservice.service.RoleService;
 
@@ -21,54 +22,54 @@ public class RoleController {
     private final RoleMapper mapper;
 
     @GetMapping
-    ResponseEntity<List<RoleResponse>> getAllRoles() {
+    AbstractResponse getAllRoles() {
         List<RoleResponse> data = service.findAll().stream()
                 .map(mapper::roleToRoleResponse)
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return new SuccessResponse<>(data);
     }
 
     @GetMapping("/{roleId}")
-    ResponseEntity<RoleResponse> getRoleById(@PathVariable int roleId) {
+    AbstractResponse getRoleById(@PathVariable int roleId) {
         RoleResponse data = mapper
                 .roleToRoleResponse(service.findById(roleId));
 
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return new SuccessResponse<>(data);
     }
 
     @GetMapping("_search/name/{roleName}")
-    ResponseEntity<RoleResponse> getRoleByName(@PathVariable String roleName) {
+    AbstractResponse getRoleByName(@PathVariable String roleName) {
         RoleResponse data = mapper
                 .roleToRoleResponse(service.findByRoleName(roleName));
 
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return new SuccessResponse<>(data);
     }
 
     @PostMapping
-    ResponseEntity<RoleResponse> createRole(
+    AbstractResponse createRole(
             @RequestBody RoleRequest requestData
     ) {
         RoleResponse data = mapper
                 .roleToRoleResponse(service.create(requestData));
 
-        return new ResponseEntity<>(data, HttpStatus.CREATED);
+        return new SuccessResponse<>(HttpStatus.CREATED.value(), data);
     }
 
     @PutMapping("/{roleId}")
-    ResponseEntity<RoleResponse> updateRole(
+    AbstractResponse updateRole(
             @PathVariable int roleId,
             @RequestBody RoleRequest requestData
     ) {
         RoleResponse data = mapper
                 .roleToRoleResponse(service.update(roleId, requestData));
 
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return new SuccessResponse<>(data);
     }
 
     @DeleteMapping("/{roleId}")
-    ResponseEntity<Boolean> deleteRole(@PathVariable int roleId) {
+    AbstractResponse deleteRole(@PathVariable int roleId) {
         service.delete(roleId);
-        return new ResponseEntity<>(true, HttpStatus.NO_CONTENT);
+        return new SuccessResponse<>(null);
     }
 }
