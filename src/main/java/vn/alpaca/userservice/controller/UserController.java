@@ -14,6 +14,7 @@ import vn.alpaca.userservice.dto.wrapper.SuccessResponse;
 import vn.alpaca.userservice.mapper.UserMapper;
 import vn.alpaca.userservice.service.UserService;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -35,6 +36,7 @@ public class UserController {
         return new SuccessResponse<>(response);
     }
 
+    @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping("/{userId}")
     AbstractResponse getUserById(@PathVariable int userId) {
         UserResponse response = mapper.userToUserResponse(
@@ -44,6 +46,7 @@ public class UserController {
         return new SuccessResponse<>(response);
     }
 
+    @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping("/_search/auth/{username}")
     AbstractResponse getUserByUsername(@PathVariable String username) {
         AuthenticationInfo response = mapper.userToAuthenInfo(
@@ -53,8 +56,9 @@ public class UserController {
         return new SuccessResponse<>(response);
     }
 
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     @PostMapping
-    AbstractResponse createUser(@RequestBody UserRequest requestData) {
+    AbstractResponse createUser(@RequestBody @Valid UserRequest requestData) {
         UserResponse response = mapper.userToUserResponse(
                 service.create(requestData)
         );
@@ -62,9 +66,10 @@ public class UserController {
         return new SuccessResponse<>(HttpStatus.CREATED.value(), response);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     @PutMapping("/{userId}")
     AbstractResponse updateUser(@PathVariable int userId,
-                                @RequestBody UserRequest requestData) {
+                                @RequestBody @Valid UserRequest requestData) {
         UserResponse response = mapper.userToUserResponse(
                 service.update(userId, requestData)
         );
@@ -72,6 +77,7 @@ public class UserController {
         return new SuccessResponse<>(response);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     @PatchMapping("/{userId}/activate")
     AbstractResponse activateUser(@PathVariable int userId) {
         service.activate(userId);
@@ -79,6 +85,7 @@ public class UserController {
         return new SuccessResponse<>(null);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     @PatchMapping("/{userId}/deactivate")
     AbstractResponse deactivateUser(@PathVariable int userId) {
         service.deactivate(userId);

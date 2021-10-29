@@ -55,8 +55,9 @@ public class UserService implements UserDetailsService {
     protected void validateData() {
         long jpaCount = userJpaRepo.count();
         long esCount = userEsRepo.count();
-        if (esCount < jpaCount) {
+        if (esCount != jpaCount) {
             log.info("ON LOAD USER DATA FROM JPA TO ES...");
+            userEsRepo.deleteAll();
             userEsRepo.saveAll(userJpaRepo.findAll().stream()
                     .map(userMapper::userToUserES)
                     .collect(Collectors.toList()));

@@ -11,7 +11,6 @@ import vn.alpaca.userservice.entity.cache.RefreshToken;
 import vn.alpaca.userservice.entity.jpa.User;
 
 import javax.annotation.PostConstruct;
-import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 

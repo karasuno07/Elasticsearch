@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.impl.JWTParser;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
@@ -28,8 +27,8 @@ public class JwtProvider {
     @Value("${alpaca.security.jwt.secret:alpaca@@@alpaca@@@alpaca@@@alpaca@@@}")
     private String jwtSecret;
 
-    @Value("${alpaca.security.jwt.expiration:5000}")
-    private long jwtExpiration;
+    @Value("${alpaca.security.jwt.expiration:300000}")
+    private long jwtExpiration;  // 300000ms = 5 minutes as default
 
     public String generateToken(@NonNull User user) {
         Map<String, Object> payload = new HashMap<>();
@@ -69,6 +68,7 @@ public class JwtProvider {
                     .verify(authToken);
             return true;
         } catch (JWTVerificationException | NullPointerException | IllegalArgumentException ex) {
+            log.error(ex.getMessage());
             return false;
         }
     }

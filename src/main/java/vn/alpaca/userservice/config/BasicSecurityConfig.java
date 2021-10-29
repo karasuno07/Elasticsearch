@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,13 +17,15 @@ import vn.alpaca.userservice.config.jwt.JwtAuthenticationFilter;
 import vn.alpaca.userservice.service.UserService;
 
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public BasicSecurityConfig(@Lazy UserService userService,
-                               @Lazy JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public BasicSecurityConfig(
+            @Lazy UserService userService,
+            @Lazy JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userService = userService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
@@ -45,6 +48,7 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
                 UsernamePasswordAuthenticationFilter.class);
     }
 
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
@@ -61,4 +65,5 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
 }

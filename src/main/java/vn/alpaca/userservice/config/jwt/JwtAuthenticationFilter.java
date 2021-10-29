@@ -32,24 +32,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-        String jwt = extractTokenFromHeader(request);
 
-        if (tokenProvider.validateToken(jwt)) {
-            int userId =
-                    Integer.parseInt(tokenProvider.getUserIdFromToken(jwt));
-            User user = userService.findById(userId);
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            user, null,
-                            user.getAuthorities()
-                    );
-            authentication.setDetails(new WebAuthenticationDetailsSource()
-                    .buildDetails(request));
-            SecurityContextHolder.getContext()
-                    .setAuthentication(authentication);
+        try {
+            String jwt = extractTokenFromHeader(request);
+
+            if (tokenProvider.validateToken(jwt)) {
+                int userId =
+                        Integer.parseInt(tokenProvider.getUserIdFromToken(jwt));
+                User user = userService.findById(userId);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                user, null,
+                                user.getAuthorities()
+                        );
+                authentication.setDetails(new WebAuthenticationDetailsSource()
+                        .buildDetails(request));
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
+            }
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+        } finally {
+            filterChain.doFilter(request, response);
         }
 
-        filterChain.doFilter(request, response);
     }
 
     private String extractTokenFromHeader(HttpServletRequest request) {
