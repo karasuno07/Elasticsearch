@@ -1,7 +1,10 @@
 package vn.alpaca.userservice.entity.es;
 
 import lombok.Data;
-import org.springframework.data.elasticsearch.annotations.*;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.persistence.Id;
 import java.util.Date;

@@ -36,8 +36,7 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ROLE_READ')")
     @GetMapping("/{roleId}")
     AbstractResponse getRoleById(@PathVariable int roleId) {
-        RoleResponse data = mapper
-                .roleToRoleResponse(service.findById(roleId));
+        RoleResponse data = mapper.roleToRoleResponse(service.findById(roleId));
 
         return new SuccessResponse<>(data);
     }
@@ -45,8 +44,7 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ROLE_READ')")
     @GetMapping("_search/name/{roleName}")
     AbstractResponse getRoleByName(@PathVariable String roleName) {
-        RoleResponse data = mapper
-                .roleToRoleResponse(service.findByRoleName(roleName));
+        RoleResponse data = mapper.roleToRoleResponse(service.findByRoleName(roleName));
 
         return new SuccessResponse<>(data);
     }
@@ -56,8 +54,7 @@ public class RoleController {
     AbstractResponse createRole(
             @RequestBody @Valid RoleRequest requestData
     ) {
-        RoleResponse data = mapper
-                .roleToRoleResponse(service.create(requestData));
+        RoleResponse data = mapper.roleToRoleResponse(service.create(requestData));
 
         return new SuccessResponse<>(HttpStatus.CREATED.value(), data);
     }
@@ -68,8 +65,7 @@ public class RoleController {
             @PathVariable int roleId,
             @RequestBody @Valid RoleRequest requestData
     ) {
-        RoleResponse data = mapper
-                .roleToRoleResponse(service.update(roleId, requestData));
+        RoleResponse data = mapper.roleToRoleResponse(service.update(roleId, requestData));
 
         return new SuccessResponse<>(data);
     }

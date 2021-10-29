@@ -57,7 +57,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse>
     handleUnauthorizedException(AccessDeniedException exception) {
@@ -67,6 +66,7 @@ public class GlobalExceptionHandler {
                 SecurityContextHolder.getContext()
                         .getAuthentication()
                         .getAuthorities();
+
         if (authorities.contains(
                 new SimpleGrantedAuthority("ROLE_ANONYMOUS")
         )) {
@@ -79,7 +79,6 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
-
 
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<ErrorResponse>

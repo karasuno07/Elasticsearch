@@ -27,11 +27,9 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping
-    AbstractResponse
-    getAllUser(@RequestBody Optional<UserFilter> filter) {
-        Page<UserResponse> response =
-                service.findAll(filter.orElse(new UserFilter()))
-                        .map(mapper::userToUserResponse);
+    AbstractResponse getAllUser(@RequestBody Optional<UserFilter> filter) {
+        Page<UserResponse> response = service.findAll(filter.orElse(new UserFilter()))
+                .map(mapper::userToUserResponse);
 
         return new SuccessResponse<>(response);
     }
@@ -39,9 +37,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping("/{userId}")
     AbstractResponse getUserById(@PathVariable int userId) {
-        UserResponse response = mapper.userToUserResponse(
-                service.findById(userId)
-        );
+        UserResponse response = mapper.userToUserResponse(service.findById(userId));
 
         return new SuccessResponse<>(response);
     }
@@ -49,9 +45,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping("/_search/auth/{username}")
     AbstractResponse getUserByUsername(@PathVariable String username) {
-        AuthenticationInfo response = mapper.userToAuthenInfo(
-                service.findByUsername(username)
-        );
+        AuthenticationInfo response = mapper.userToAuthenInfo(service.findByUsername(username));
 
         return new SuccessResponse<>(response);
     }
@@ -59,9 +53,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_CREATE')")
     @PostMapping
     AbstractResponse createUser(@RequestBody @Valid UserRequest requestData) {
-        UserResponse response = mapper.userToUserResponse(
-                service.create(requestData)
-        );
+        UserResponse response = mapper.userToUserResponse(service.create(requestData));
 
         return new SuccessResponse<>(HttpStatus.CREATED.value(), response);
     }
@@ -70,9 +62,7 @@ public class UserController {
     @PutMapping("/{userId}")
     AbstractResponse updateUser(@PathVariable int userId,
                                 @RequestBody @Valid UserRequest requestData) {
-        UserResponse response = mapper.userToUserResponse(
-                service.update(userId, requestData)
-        );
+        UserResponse response = mapper.userToUserResponse(service.update(userId, requestData));
 
         return new SuccessResponse<>(response);
     }

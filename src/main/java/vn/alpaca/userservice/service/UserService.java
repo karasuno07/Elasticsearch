@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.elasticsearch.core.*;
@@ -49,8 +50,7 @@ public class UserService implements UserDetailsService {
 
     private final ElasticsearchRestTemplate restTemplate;
     private final IndexCoordinates index = IndexCoordinates.of("users");
-
-
+    
     @PostConstruct
     protected void validateData() {
         long jpaCount = userJpaRepo.count();
@@ -73,23 +73,18 @@ public class UserService implements UserDetailsService {
             query.should(wildcardQuery("username",
                     "*" + filter.getUsername() + "*"));
         }
-
         if (!ObjectUtils.isEmpty(filter.getFullName())) {
             query.should(matchQuery("full_name", filter.getFullName()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getIdCardNumber())) {
             query.should(termQuery("id_card_number", filter.getIdCardNumber()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getPhoneNumber())) {
             query.should(termQuery("phone_numbers", filter.getPhoneNumber()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getAddress())) {
             query.should(matchQuery("address", filter.getAddress()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getFrom()) &&
                 !ObjectUtils.isEmpty(filter.getTo())) {
             query.should(rangeQuery("date_of_birth")
@@ -107,11 +102,9 @@ public class UserService implements UserDetailsService {
                     .format("date_option_time")
                     .lte(filter.getTo()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getGender())) {
             query.should(matchQuery("gender", filter.getGender()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getActive())) {
             query.should(matchQuery("active", filter.getActive()));
         }
@@ -195,37 +188,36 @@ public class UserService implements UserDetailsService {
     }
 
     public User update(int userId, UserRequest requestData) {
-        User existingUser = findById(userId);
+        User user = findById(userId);
 
-        User updatedUser = userMapper.userRequestToUser(requestData);
-        updatedUser.setId(existingUser.getId());
-        updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        userMapper.updateUser(user, requestData);
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Role role = roleJpaRepo.findById(requestData.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Not found role with id " + requestData.getRoleId()
                 ));
-        updatedUser.setRole(role);
+        user.setRole(role);
 
-        userJpaRepo.save(updatedUser);
+        userJpaRepo.save(user);
 
-        return updatedUser;
+        // TODO: vô redis database kiểm tra xem có user đó trong redis hay
+        //  không, nếu có  thì phải
+        // 1. Xoá luôn user đó trong cache
+        // 2. Cập nhật lại user đó trong cache
+
+        return user;
     }
 
     public void activate(int userId) {
-        User user = userJpaRepo.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException(
-                        "Not found user with id " + userId
-                ));
+        User user = findById(userId);
         user.setActive(true);
         userJpaRepo.save(user);
     }
 
     public void deactivate(int userId) {
-        User user = userJpaRepo.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException(
-                        "Not found user with id " + userId
-                ));
+        User user = findById(userId);
         user.setActive(false);
         userJpaRepo.save(user);
     }

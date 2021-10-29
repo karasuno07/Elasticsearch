@@ -50,7 +50,7 @@ public class User implements Serializable, UserDetails {
 
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
-    
+
     @Type(type = "list-array")
     @Column(columnDefinition = "text[]")
     private List<String> phoneNumbers;

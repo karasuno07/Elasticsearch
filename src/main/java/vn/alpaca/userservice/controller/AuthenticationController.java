@@ -40,7 +40,7 @@ public class AuthenticationController {
         User user = (User) authentication.getPrincipal();
 
         String accessToken = jwtProvider.generateToken(user);
-        String refreshToken = tokenService.createRefreshToken(user);
+        String refreshToken = tokenService.createRefreshToken(user).getToken();
         UserResponse userInfo = mapper.userToUserResponse(user);
 
         TokenResponse response =
@@ -54,12 +54,9 @@ public class AuthenticationController {
         RefreshToken refreshToken = tokenService.verifyExpiration(token);
 
         String accessToken = jwtProvider.generateToken(refreshToken.getUser());
-        UserResponse userInfo =
-                mapper.userToUserResponse(refreshToken.getUser());
+        UserResponse userInfo = mapper.userToUserResponse(refreshToken.getUser());
 
-        TokenResponse response = new TokenResponse(
-                accessToken, refreshToken.getToken(), userInfo
-        );
+        TokenResponse response = new TokenResponse(accessToken, refreshToken.getToken(), userInfo);
 
         return new SuccessResponse<>(response);
     }

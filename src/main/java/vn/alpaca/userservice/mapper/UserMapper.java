@@ -1,18 +1,11 @@
 package vn.alpaca.userservice.mapper;
 
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import vn.alpaca.userservice.dto.request.UserRequest;
 import vn.alpaca.userservice.dto.response.AuthenticationInfo;
 import vn.alpaca.userservice.dto.response.UserResponse;
 import vn.alpaca.userservice.entity.es.UserES;
-import vn.alpaca.userservice.entity.jpa.Authority;
 import vn.alpaca.userservice.entity.jpa.User;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -22,6 +15,7 @@ public interface UserMapper {
 
     UserResponse userESToUserResponse(UserES userES);
 
+    @Mapping(target = "roleName", expression = "java(user.getRole().getName())")
     AuthenticationInfo userToAuthenInfo(User user);
 
     UserES userToUserES(User user);
@@ -29,6 +23,7 @@ public interface UserMapper {
     User userRequestToUser(UserRequest requestData);
 
     User userESToUser(UserES userES);
+    void updateUser(@MappingTarget User user, UserRequest requestData);
 
     @AfterMapping
     default void getResponseRoleNameFromUserEntity(
@@ -38,16 +33,4 @@ public interface UserMapper {
         response.setRoleName(user.getRole().getName());
     }
 
-    @AfterMapping
-    default void getAuthRoleNameFromUserEntity(
-            @MappingTarget AuthenticationInfo authInfo,
-            User user
-    ) {
-        authInfo.setRoleName(user.getRole().getName());
-
-        Set<String> permissions = user.getRole().getAuthorities().stream()
-                .map(Authority::getPermissionName)
-                .collect(Collectors.toSet());
-        authInfo.setPermissions(permissions);
-    }
 }

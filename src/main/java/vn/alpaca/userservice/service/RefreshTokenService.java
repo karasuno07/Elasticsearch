@@ -21,11 +21,11 @@ public class RefreshTokenService {
 
     private final RedissonClient client;
 
-    @Value("${alpaca.security.jwt.refresh-token-ttl:86400}")
-    private long timeToLive;
-
     public final String CACHE_NAME = "user_refresh_token";
-    private final TimeUnit unit = TimeUnit.MILLISECONDS;
+    private final TimeUnit unit = TimeUnit.HOURS;
+
+    @Value("${alpaca.security.jwt.refresh-token-ttl:12}")
+    private long timeToLive;
 
     private RMapCache<String, RefreshToken> tokenMap;
 
@@ -34,7 +34,7 @@ public class RefreshTokenService {
         tokenMap = client.getMapCache(CACHE_NAME);
     }
 
-    public String createRefreshToken(User user) {
+    public RefreshToken createRefreshToken(User user) {
         RefreshToken token = new RefreshToken();
         token.setToken(UUID.randomUUID().toString());
         token.setUser(user);
@@ -42,20 +42,20 @@ public class RefreshTokenService {
         tokenMap.fastPut(token.getToken(), token, timeToLive, unit);
         log.info("SAVED TOKEN: " + tokenMap.get(token.getToken()));
 
-        return token.getToken();
+        return token;
     }
 
     public RefreshToken verifyExpiration(String token) {
-
         if (tokenMap.remainTimeToLive(token) > 0) {
-            log.info("REMAINING TIME: " + tokenMap.remainTimeToLive(token));
-            return tokenMap.getWithTTLOnly(token);
+            RefreshToken currentToken = tokenMap.get(token);
+            User user = currentToken.getUser();
+
+            tokenMap.remove(token);
+
+            return createRefreshToken(user);
         } else {
             throw new TokenExpiredException("Refresh token has been expired");
         }
     }
 
-    public void deleteRefreshToken(String token) {
-        tokenMap.remove(token);
-    }
 }

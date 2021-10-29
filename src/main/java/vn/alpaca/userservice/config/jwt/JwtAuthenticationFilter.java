@@ -8,8 +8,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import vn.alpaca.userservice.entity.jpa.User;
-import vn.alpaca.userservice.service.UserService;
+import vn.alpaca.userservice.dto.response.AuthenticationInfo;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,7 +22,6 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider tokenProvider;
-    private final UserService userService;
 
     private static final String AUTHENTICATION_SCHEME = "Bearer ";
 
@@ -36,19 +34,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = extractTokenFromHeader(request);
 
-            if (tokenProvider.validateToken(jwt)) {
-                int userId =
-                        Integer.parseInt(tokenProvider.getUserIdFromToken(jwt));
-                User user = userService.findById(userId);
+            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+                AuthenticationInfo user = tokenProvider.getAuthInfoFromToken(jwt);
+
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                user, null,
-                                user.getAuthorities()
-                        );
-                authentication.setDetails(new WebAuthenticationDetailsSource()
-                        .buildDetails(request));
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
+                        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
             log.error(ex.getMessage());
@@ -60,8 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String extractTokenFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) &&
-                bearerToken.startsWith(AUTHENTICATION_SCHEME)) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AUTHENTICATION_SCHEME)) {
             return bearerToken.substring(AUTHENTICATION_SCHEME.length());
         }
         return null;

@@ -48,7 +48,6 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
                 UsernamePasswordAuthenticationFilter.class);
     }
 
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
