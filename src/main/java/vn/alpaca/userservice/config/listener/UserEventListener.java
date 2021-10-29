@@ -13,7 +13,6 @@ import vn.alpaca.userservice.repository.es.UserESRepository;
 @Log4j2
 @RequiredArgsConstructor
 public class UserEventListener implements
-        PostLoadEventListener,
         PostInsertEventListener,
         PostUpdateEventListener,
         PostDeleteEventListener {
@@ -21,11 +20,6 @@ public class UserEventListener implements
     private final UserESRepository repository;
 
     private final UserMapper mapper;
-
-    @Override
-    public void onPostLoad(PostLoadEvent event) {
-        log.info("ON LOAD DATA FROM JPA: " + event.getEntity());
-    }
 
     @Override
     public void onPostInsert(PostInsertEvent event) {

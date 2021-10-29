@@ -1,9 +1,6 @@
 package vn.alpaca.userservice.mapper;
 
-import org.mapstruct.BeforeMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import vn.alpaca.userservice.dto.request.UserRequest;
 import vn.alpaca.userservice.dto.response.AuthenticationInfo;
 import vn.alpaca.userservice.dto.response.UserResponse;
@@ -18,6 +15,7 @@ public interface UserMapper {
 
     UserResponse userESToUserResponse(UserES userES);
 
+    @Mapping(target = "roleName", expression = "java(user.getRole().getName())")
     AuthenticationInfo userToAuthenInfo(User user);
 
     UserES userToUserES(User user);
@@ -25,12 +23,14 @@ public interface UserMapper {
     User userRequestToUser(UserRequest requestData);
 
     User userESToUser(UserES userES);
+    void updateUser(@MappingTarget User user, UserRequest requestData);
 
-    @BeforeMapping
-    default void getRoleNameFromUserEntity(
+    @AfterMapping
+    default void getResponseRoleNameFromUserEntity(
             @MappingTarget UserResponse response,
             User user
     ) {
         response.setRoleName(user.getRole().getName());
     }
+
 }

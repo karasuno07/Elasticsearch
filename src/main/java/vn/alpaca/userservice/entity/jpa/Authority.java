@@ -3,6 +3,7 @@ package vn.alpaca.userservice.entity.jpa;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "authorities", schema = "user_management")
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Authority {
+public class Authority implements Serializable {
 
     @Id
     @SequenceGenerator(

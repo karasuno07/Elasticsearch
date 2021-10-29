@@ -27,17 +27,16 @@ public class RoleService {
 
     private final RoleJpaRepository roleJpaRepo;
     private final RoleESRepository roleEsRepo;
-
     private final AuthorityJpaRepository authorityJpaRepo;
-
     private final RoleMapper roleMapper;
 
     @PostConstruct
     protected void validateData() {
         long jpaCount = roleJpaRepo.count();
         long esCount = roleEsRepo.count();
-        if (esCount < jpaCount) {
-            log.info("ON LOAD USER DATA FROM JPA TO ES...");
+        if (esCount != jpaCount) {
+            log.info("ON LOAD ROLE DATA FROM JPA TO ES...");
+            roleEsRepo.deleteAll();
             roleEsRepo.saveAll(roleJpaRepo.findAll().stream()
                     .map(roleMapper::roleToRoleES)
                     .collect(Collectors.toList()));

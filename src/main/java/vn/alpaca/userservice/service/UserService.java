@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.elasticsearch.core.*;
@@ -11,6 +12,10 @@ import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import vn.alpaca.userservice.dto.request.UserFilter;
@@ -34,24 +39,25 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserJpaRepository userJpaRepo;
-    private final UserESRepository userEsRepo;
-
     private final RoleJpaRepository roleJpaRepo;
+    private final UserESRepository userEsRepo;
+    private final UserMapper userMapper;
+
+    private final PasswordEncoder passwordEncoder;
 
     private final ElasticsearchRestTemplate restTemplate;
     private final IndexCoordinates index = IndexCoordinates.of("users");
-
-    private final UserMapper userMapper;
-
+    
     @PostConstruct
     protected void validateData() {
         long jpaCount = userJpaRepo.count();
         long esCount = userEsRepo.count();
-        if (esCount < jpaCount) {
+        if (esCount != jpaCount) {
             log.info("ON LOAD USER DATA FROM JPA TO ES...");
+            userEsRepo.deleteAll();
             userEsRepo.saveAll(userJpaRepo.findAll().stream()
                     .map(userMapper::userToUserES)
                     .collect(Collectors.toList()));
@@ -67,23 +73,18 @@ public class UserService {
             query.should(wildcardQuery("username",
                     "*" + filter.getUsername() + "*"));
         }
-
         if (!ObjectUtils.isEmpty(filter.getFullName())) {
             query.should(matchQuery("full_name", filter.getFullName()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getIdCardNumber())) {
             query.should(termQuery("id_card_number", filter.getIdCardNumber()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getPhoneNumber())) {
             query.should(termQuery("phone_numbers", filter.getPhoneNumber()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getAddress())) {
             query.should(matchQuery("address", filter.getAddress()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getFrom()) &&
                 !ObjectUtils.isEmpty(filter.getTo())) {
             query.should(rangeQuery("date_of_birth")
@@ -101,11 +102,9 @@ public class UserService {
                     .format("date_option_time")
                     .lte(filter.getTo()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getGender())) {
             query.should(matchQuery("gender", filter.getGender()));
         }
-
         if (!ObjectUtils.isEmpty(filter.getActive())) {
             query.should(matchQuery("active", filter.getActive()));
         }
@@ -175,6 +174,7 @@ public class UserService {
 
     public User create(UserRequest requestData) {
         User user = userMapper.userRequestToUser(requestData);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Role role = roleJpaRepo.findById(requestData.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -188,37 +188,43 @@ public class UserService {
     }
 
     public User update(int userId, UserRequest requestData) {
-        User existingUser = findById(userId);
+        User user = findById(userId);
 
-        User updatedUser = userMapper.userRequestToUser(requestData);
-        updatedUser.setId(existingUser.getId());
+        userMapper.updateUser(user, requestData);
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Role role = roleJpaRepo.findById(requestData.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Not found role with id " + requestData.getRoleId()
                 ));
-        updatedUser.setRole(role);
+        user.setRole(role);
 
-        userJpaRepo.save(updatedUser);
+        userJpaRepo.save(user);
 
-        return updatedUser;
+        // TODO: vô redis database kiểm tra xem có user đó trong redis hay
+        //  không, nếu có  thì phải
+        // 1. Xoá luôn user đó trong cache
+        // 2. Cập nhật lại user đó trong cache
+
+        return user;
     }
 
     public void activate(int userId) {
-        User user = userJpaRepo.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException(
-                        "Not found user with id " + userId
-                ));
+        User user = findById(userId);
         user.setActive(true);
         userJpaRepo.save(user);
     }
 
     public void deactivate(int userId) {
-        User user = userJpaRepo.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException(
-                        "Not found user with id " + userId
-                ));
+        User user = findById(userId);
         user.setActive(false);
         userJpaRepo.save(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+        return findByUsername(username);
     }
 }
