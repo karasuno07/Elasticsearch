@@ -5,11 +5,13 @@ import lombok.extern.log4j.Log4j2;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.alpaca.userservice.entity.jpa.Role;
 import vn.alpaca.userservice.mapper.RoleMapper;
 import vn.alpaca.userservice.repository.es.RoleESRepository;
 
-@Component
+@Service
 @Log4j2
 @RequiredArgsConstructor
 public class RoleEventListener implements
@@ -22,6 +24,7 @@ public class RoleEventListener implements
 
 
     @Override
+    @Transactional
     public void onPostInsert(PostInsertEvent event) {
         if (event.getEntity() instanceof Role) {
             log.info("ON CREATED: " + event.getEntity());
@@ -31,6 +34,7 @@ public class RoleEventListener implements
     }
 
     @Override
+    @Transactional
     public void onPostUpdate(PostUpdateEvent event) {
         if (event.getEntity() instanceof Role) {
             log.info("ON UPDATED: " + event.getEntity());
@@ -40,6 +44,7 @@ public class RoleEventListener implements
     }
 
     @Override
+    @Transactional
     public void onPostDelete(PostDeleteEvent event) {
         if (event.getEntity() instanceof Role) {
             log.info("ON DELETED: " + event.getEntity());

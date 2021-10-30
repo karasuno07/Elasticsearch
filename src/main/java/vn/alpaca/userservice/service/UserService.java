@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.elasticsearch.core.*;
@@ -50,7 +49,7 @@ public class UserService implements UserDetailsService {
 
     private final ElasticsearchRestTemplate restTemplate;
     private final IndexCoordinates index = IndexCoordinates.of("users");
-    
+
     @PostConstruct
     protected void validateData() {
         long jpaCount = userJpaRepo.count();
@@ -59,8 +58,8 @@ public class UserService implements UserDetailsService {
             log.info("ON LOAD USER DATA FROM JPA TO ES...");
             userEsRepo.deleteAll();
             userEsRepo.saveAll(userJpaRepo.findAll().stream()
-                    .map(userMapper::userToUserES)
-                    .collect(Collectors.toList()));
+                                          .map(userMapper::userToUserES)
+                                          .collect(Collectors.toList()));
         }
     }
 
@@ -71,7 +70,7 @@ public class UserService implements UserDetailsService {
 
         if (!ObjectUtils.isEmpty(filter.getUsername())) {
             query.should(wildcardQuery("username",
-                    "*" + filter.getUsername() + "*"));
+                                       "*" + filter.getUsername() + "*"));
         }
         if (!ObjectUtils.isEmpty(filter.getFullName())) {
             query.should(matchQuery("full_name", filter.getFullName()));
@@ -88,19 +87,19 @@ public class UserService implements UserDetailsService {
         if (!ObjectUtils.isEmpty(filter.getFrom()) &&
                 !ObjectUtils.isEmpty(filter.getTo())) {
             query.should(rangeQuery("date_of_birth")
-                    .format("date_option_time")
-                    .gte(filter.getFrom())
-                    .lte(filter.getTo()));
+                                 .format("date_option_time")
+                                 .gte(filter.getFrom())
+                                 .lte(filter.getTo()));
         } else if (!ObjectUtils.isEmpty(filter.getFrom()) &&
                 ObjectUtils.isEmpty(filter.getTo())) {
             query.should(rangeQuery("date_of_birth")
-                    .format("date_option_time")
-                    .gte(filter.getFrom()));
+                                 .format("date_option_time")
+                                 .gte(filter.getFrom()));
         } else if (ObjectUtils.isEmpty(filter.getFrom()) &&
                 !ObjectUtils.isEmpty(filter.getTo())) {
             query.should(rangeQuery("date_of_birth")
-                    .format("date_option_time")
-                    .lte(filter.getTo()));
+                                 .format("date_option_time")
+                                 .lte(filter.getTo()));
         }
         if (!ObjectUtils.isEmpty(filter.getGender())) {
             query.should(matchQuery("gender", filter.getGender()));
@@ -119,12 +118,12 @@ public class UserService implements UserDetailsService {
         if (hits.hasSearchHits()) {
             SearchPage<UserES> page =
                     SearchHitSupport.searchPageFor(hits,
-                            filter.getPagination().getPageAndSort());
+                                                   filter.getPagination().getPageAndSort());
             users = new PageImpl<>(
                     page.getContent().stream()
-                            .map(SearchHit::getContent)
-                            .map(userMapper::userESToUser)
-                            .collect(Collectors.toList()),
+                        .map(SearchHit::getContent)
+                        .map(userMapper::userESToUser)
+                        .collect(Collectors.toList()),
                     page.getPageable(),
                     page.getTotalElements()
             );
@@ -132,7 +131,7 @@ public class UserService implements UserDetailsService {
         } else {
             Specification<User> specification = UserSpec.getUserSpec(filter);
             users = userJpaRepo.findAll(specification,
-                    filter.getPagination().getPageAndSort());
+                                        filter.getPagination().getPageAndSort());
             log.info("USE DB: " + users);
         }
 
@@ -146,10 +145,8 @@ public class UserService implements UserDetailsService {
         if (optional.isPresent()) {
             user = userMapper.userESToUser(optional.get());
         } else {
-            user = userJpaRepo.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Not found user with id " + id
-                    ));
+            user = userJpaRepo.findById(id).orElseThrow(
+                    () -> new ResourceNotFoundException("Not found user with id " + id));
         }
 
         return user;
@@ -163,10 +160,7 @@ public class UserService implements UserDetailsService {
             user = userMapper.userESToUser(optional.get());
         } else {
             user = userJpaRepo.findByUsername(username).orElseThrow(
-                    () -> new ResourceNotFoundException(
-                            "Not found user with username " +
-                                    username
-                    ));
+                    () -> new ResourceNotFoundException("Not found user with username " + username));
         }
 
         return user;
@@ -176,10 +170,8 @@ public class UserService implements UserDetailsService {
         User user = userMapper.userRequestToUser(requestData);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Role role = roleJpaRepo.findById(requestData.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Not found role with id " + requestData.getRoleId()
-                ));
+        Role role = roleJpaRepo.findById(requestData.getRoleId()).orElseThrow(
+                () -> new ResourceNotFoundException("Not found role with id " + requestData.getRoleId()));
         user.setRole(role);
 
         userJpaRepo.save(user);
@@ -194,10 +186,8 @@ public class UserService implements UserDetailsService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Role role = roleJpaRepo.findById(requestData.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Not found role with id " + requestData.getRoleId()
-                ));
+        Role role = roleJpaRepo.findById(requestData.getRoleId()).orElseThrow(
+                () -> new ResourceNotFoundException("Not found role with id " + requestData.getRoleId()));
         user.setRole(role);
 
         userJpaRepo.save(user);

@@ -5,8 +5,7 @@ import vn.alpaca.userservice.entity.es.RoleES;
 
 import java.util.Optional;
 
-public interface RoleESRepository extends
-        ElasticsearchRepository<RoleES, Integer> {
+public interface RoleESRepository extends ElasticsearchRepository<RoleES, Integer> {
 
     Optional<RoleES> findByName(String name);
 }

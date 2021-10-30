@@ -38,8 +38,8 @@ public class RoleService {
             log.info("ON LOAD ROLE DATA FROM JPA TO ES...");
             roleEsRepo.deleteAll();
             roleEsRepo.saveAll(roleJpaRepo.findAll().stream()
-                    .map(roleMapper::roleToRoleES)
-                    .collect(Collectors.toList()));
+                                          .map(roleMapper::roleToRoleES)
+                                          .collect(Collectors.toList()));
         }
     }
 
@@ -47,11 +47,9 @@ public class RoleService {
         List<Role> roles;
 
         if (roleEsRepo.count() > 0) {
-            roles = StreamSupport.stream(
-                            roleEsRepo.findAll().spliterator(),
-                            false
-                    ).map(roleMapper::roleESToRole)
-                    .collect(Collectors.toList());
+            roles = StreamSupport.stream(roleEsRepo.findAll().spliterator(), false)
+                                 .map(roleMapper::roleESToRole)
+                                 .collect(Collectors.toList());
         } else {
             roles = roleJpaRepo.findAll();
         }
@@ -67,10 +65,8 @@ public class RoleService {
         if (roleES.isPresent()) {
             role = roleMapper.roleESToRole(roleES.get());
         } else {
-            role = roleJpaRepo.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Not found role with id " + id
-                    ));
+            role = roleJpaRepo.findById(id).orElseThrow(
+                    () -> new ResourceNotFoundException("Not found role with id " + id));
         }
 
         return role;
@@ -84,10 +80,8 @@ public class RoleService {
         if (roleES.isPresent()) {
             role = roleMapper.roleESToRole(roleES.get());
         } else {
-            role = roleJpaRepo.findByName(name)
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Not found role with name " + name
-                    ));
+            role = roleJpaRepo.findByName(name).orElseThrow(
+                    () -> new ResourceNotFoundException("Not found role with name " + name));
         }
 
         return role;
@@ -115,7 +109,7 @@ public class RoleService {
 
             try {
                 authorityJpaRepo.findAllById(requestData.getAuthorityIds())
-                        .forEach(role::addAuthority);
+                                .forEach(role::addAuthority);
             } catch (EntityNotFoundException ex) {
                 throw new ResourceNotFoundException("Authority not found");
             } catch (Exception e) {

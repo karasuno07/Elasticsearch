@@ -27,8 +27,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse>
-    handleException(Exception exception) {
+    public ResponseEntity<ErrorResponse> handleException(Exception exception) {
         ErrorResponse response = new ErrorResponse();
 
         response.setStatusCode(HttpStatus.BAD_REQUEST.value());
@@ -39,8 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(
-            MethodArgumentNotValidException exception
-    ) {
+            MethodArgumentNotValidException exception) {
         Map<String, String> errors = new HashMap<>();
         exception.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
@@ -50,26 +48,21 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse();
         response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        response.setMessage("Something were wrong with your query, " +
-                "please check errors and try again.");
+        response.setMessage("Something were wrong with your query, please check errors and try again.");
         response.setErrors(errors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse>
-    handleUnauthorizedException(AccessDeniedException exception) {
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(AccessDeniedException exception) {
         ErrorResponse response = new ErrorResponse();
 
         Collection<? extends GrantedAuthority> authorities =
-                SecurityContextHolder.getContext()
-                        .getAuthentication()
-                        .getAuthorities();
-
-        if (authorities.contains(
-                new SimpleGrantedAuthority("ROLE_ANONYMOUS")
-        )) {
+                SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        boolean isAnonymous = authorities.contains(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
+        
+        if (isAnonymous) {
             response.setStatusCode(HttpStatus.UNAUTHORIZED.value());
             response.setMessage("Unauthorized");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
@@ -81,8 +74,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TokenExpiredException.class)
-    public ResponseEntity<ErrorResponse>
-    handleRefreshTokenException(TokenExpiredException exception) {
+    public ResponseEntity<ErrorResponse> handleRefreshTokenException(TokenExpiredException exception) {
         ErrorResponse response = new ErrorResponse();
 
         response.setStatusCode(HttpStatus.UNAUTHORIZED.value());
@@ -92,22 +84,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse>
-    handleNotFoundException(ResourceNotFoundException exception) {
+    public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException exception) {
         ErrorResponse response = new ErrorResponse();
 
         response.setStatusCode(HttpStatus.NOT_FOUND.value());
         response.setMessage(ObjectUtils.isEmpty(exception.getMessage())
-                ? "Resource not found"
-                : exception.getMessage()
+                                    ? "Resource not found"
+                                    : exception.getMessage()
         );
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ServletException.class)
-    public ResponseEntity<ErrorResponse>
-    handleServerException(ServletException exception) {
+    public ResponseEntity<ErrorResponse> handleServerException(ServletException exception) {
         ErrorResponse response = new ErrorResponse();
 
         response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());

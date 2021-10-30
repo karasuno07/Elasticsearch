@@ -23,13 +23,11 @@ public interface UserMapper {
     User userRequestToUser(UserRequest requestData);
 
     User userESToUser(UserES userES);
+
     void updateUser(@MappingTarget User user, UserRequest requestData);
 
     @AfterMapping
-    default void getResponseRoleNameFromUserEntity(
-            @MappingTarget UserResponse response,
-            User user
-    ) {
+    default void getResponseRoleNameFromUserEntity(@MappingTarget UserResponse response, User user) {
         response.setRoleName(user.getRole().getName());
     }
 

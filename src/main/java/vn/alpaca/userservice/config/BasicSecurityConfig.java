@@ -13,7 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import vn.alpaca.userservice.config.jwt.JwtAuthenticationFilter;
+import vn.alpaca.userservice.config.uuidtoken.UuidAuthenticationFilter;
 import vn.alpaca.userservice.service.UserService;
 
 @Configuration
@@ -21,13 +21,12 @@ import vn.alpaca.userservice.service.UserService;
 public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UuidAuthenticationFilter uuidAuthenticationFilter;
 
-    public BasicSecurityConfig(
-            @Lazy UserService userService,
-            @Lazy JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public BasicSecurityConfig(@Lazy UserService userService,
+                               @Lazy UuidAuthenticationFilter uuidAuthenticationFilter) {
         this.userService = userService;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.uuidAuthenticationFilter = uuidAuthenticationFilter;
     }
 
     @Override
@@ -44,13 +43,12 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .anyRequest().permitAll();
 
-        http.addFilterBefore(jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(uuidAuthenticationFilter,
+                             UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth)
-            throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
     }
 

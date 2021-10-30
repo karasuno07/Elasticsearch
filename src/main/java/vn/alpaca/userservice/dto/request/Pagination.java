@@ -18,7 +18,7 @@ public class Pagination {
     @JsonProperty("limit")
     private int pageSize = 10000;
 
-    @JsonProperty("sort-by")
+    @JsonProperty("sort_by")
     private String sortBy;
 
     public Pagination(int pageSize) {

@@ -24,18 +24,14 @@ public class HibernateListenerConfig {
 
     @PostConstruct
     protected void listenerRegistry() {
-        SessionFactoryImpl sessionFactory
-                = factory.unwrap(SessionFactoryImpl.class);
+        SessionFactoryImpl sessionFactory = factory.unwrap(SessionFactoryImpl.class);
 
-        EventListenerRegistry registry = sessionFactory.getServiceRegistry()
-                .getService(EventListenerRegistry.class);
+        EventListenerRegistry registry = sessionFactory
+                .getServiceRegistry().getService(EventListenerRegistry.class);
 
-        registry.getEventListenerGroup(EventType.POST_INSERT)
-                .appendListeners(userListener, roleListener);
-        registry.getEventListenerGroup(EventType.POST_UPDATE)
-                .appendListeners(userListener, roleListener);
-        registry.getEventListenerGroup(EventType.POST_DELETE)
-                .appendListeners(userListener, roleListener);
+        registry.getEventListenerGroup(EventType.POST_INSERT).appendListeners(userListener, roleListener);
+        registry.getEventListenerGroup(EventType.POST_UPDATE).appendListeners(userListener, roleListener);
+        registry.getEventListenerGroup(EventType.POST_DELETE).appendListeners(userListener, roleListener);
     }
 
 

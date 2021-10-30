@@ -23,9 +23,9 @@ public class DataConfig {
     public RestHighLevelClient restClient() {
         final ClientConfiguration configuration
                 = ClientConfiguration.builder()
-                .connectedTo("localhost:9200")
-                .withBasicAuth("elastic", "123456")
-                .build();
+                                     .connectedTo("localhost:9200")
+                                     .withBasicAuth("elastic", "123456")
+                                     .build();
         return RestClients.create(configuration).rest();
     }
 
